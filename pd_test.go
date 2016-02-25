@@ -7,7 +7,7 @@ import (
 )
 
 func TestBasicFunction(t *testing.T) {
-	ser := NewPubsub(1)
+	ser := NewPubsub()
 	c1 := ser.Subscribe("ch1")
 	ser.Publish("test1", "ch1")
 
@@ -17,7 +17,7 @@ func TestBasicFunction(t *testing.T) {
 }
 
 func TestTwoSubscribetor(t *testing.T) {
-	ser := NewPubsub(1)
+	ser := NewPubsub()
 	c1 := ser.Subscribe("ch1")
 	c2 := ser.Subscribe("ch2")
 
@@ -36,7 +36,7 @@ func TestTwoSubscribetor(t *testing.T) {
 }
 
 func TestAddSub(t *testing.T) {
-	ser := NewPubsub(10)
+	ser := NewPubsub()
 	c1 := ser.Subscribe("ch1")
 	ser.AddSubscription(c1, "ch2")
 	ser.Publish("test2", "ch2")
@@ -47,7 +47,7 @@ func TestAddSub(t *testing.T) {
 }
 
 func TestRemoveSub(t *testing.T) {
-	ser := NewPubsub(10)
+	ser := NewPubsub()
 	c1 := ser.Subscribe("ch1", "ch2")
 	ser.Publish("test1", "ch2")
 
@@ -68,7 +68,7 @@ func TestRemoveSub(t *testing.T) {
 }
 
 func BenchmarkAddSub(b *testing.B) {
-	big := NewPubsub(100000)
+	big := NewPubsub()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		big.Subscribe("1234567890")
@@ -76,8 +76,8 @@ func BenchmarkAddSub(b *testing.B) {
 }
 
 func BenchmarkRemoveSub(b *testing.B) {
-	big := NewPubsub(100000)
-	var subChans []chan interface{}
+	big := NewPubsub()
+	var subChans []chan string
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		c1 := big.Subscribe("1234567890")
@@ -91,7 +91,7 @@ func BenchmarkRemoveSub(b *testing.B) {
 }
 
 func BenchmarkBasicFunction(b *testing.B) {
-	ser := NewPubsub(1000000)
+	ser := NewPubsub()
 	c1 := ser.Subscribe("ch1")
 
 	for i := 0; i < b.N; i++ {

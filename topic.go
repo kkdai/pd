@@ -79,10 +79,16 @@ func removeChanFromSlice(slice []chan string, target chan string) []chan string 
 }
 
 func (t *Topic) inLoop() {
-
+	var dataRead []byte
 	for {
-
+		dataRead = nil
 		select {
+		case dataRead = <-t.dataQueue.ReadChan():
+			log.Println("TOPIC:Got data ", string(dataRead))
+			//Got data start to put on all chan
+			for _, targetChan := range t.chanList {
+				targetChan <- string(dataRead)
+			}
 		case <-t.exitChan:
 			//exist
 			goto exit
