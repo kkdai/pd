@@ -39,9 +39,11 @@ func (p *PD) ListTopics() []string {
 
 func (p *PD) updateTopicMapClient(clientChan chan string, topics []string) {
 	for _, topic := range topics {
-		if _, exist := p.topicMap[topic]; exist {
-			p.topicMapClients[topic].AddChan(clientChan)
+		if _, exist := p.topicMap[topic]; !exist {
+			p.topicMap[topic] = 1
+			p.topicMapClients[topic] = NewTopic(topic)
 		}
+		p.topicMapClients[topic].AddChan(clientChan)
 	}
 }
 
