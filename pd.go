@@ -1,95 +1,98 @@
 package pd
 
-import (
-	. "github.com/kkdai/diskqueue"
-)
-
-type chanMapStringList map[chan interface{}][]string
-type stringMapChanList map[string][]chan interface{}
+import "sync"
 
 // Pubsub struct: Only content a userIndex and accessDB which content a chan map
 type PD struct {
-	//Capacity for each chan buffer
-	capacity int
+	sync.RWMutex
 
-	//map to store "chan -> Topic List" for find subscription
-	clientMapTopics chanMapStringList
+	//To quick refer if topic exist
+	topicMap map[string]int
+
 	//map to store "topic -> chan List" for publish
-	topicMapClients stringMapChanList
+	topicMapClients map[string]*Topic
 }
 
-//Sub: Subscribe channels, the channels could be a list of channels name
+//Subscribe : Subscribe channels, the channels could be a list of channels name
 //     The channel name could be any, without define in server
-func (p *PD) Subscribe(topics ...string) chan interface{} {
+func (p *PD) Subscribe(topics ...string) chan string {
+	p.RLock()
+	defer p.RUnlock()
+
 	//init new chan using capacity as channel buffer
-	workChan := make(chan interface{}, p.capacity)
+	workChan := make(chan string)
 	p.updateTopicMapClient(workChan, topics)
 	return workChan
 }
 
-func (p *PD) updateTopicMapClient(clientChan chan interface{}, topics []string) {
-	var updateChanList []chan interface{}
-	for _, topic := range topics {
-		updateChanList, _ = p.topicMapClients[topic]
-		updateChanList = append(updateChanList, clientChan)
-		p.topicMapClients[topic] = updateChanList
+//ListTopics :Return all the topic
+func (p *PD) ListTopics() []string {
+	p.RLock()
+	defer p.RUnlock()
+
+	var retSlice []string
+	for k, _ := range p.topicMap {
+		retSlice = append(retSlice, k)
 	}
-	p.clientMapTopics[clientChan] = topics
+	return retSlice
+}
+
+func (p *PD) updateTopicMapClient(clientChan chan string, topics []string) {
+	for _, topic := range topics {
+		if _, exist := p.topicMap[topic]; exist {
+			p.topicMapClients[topic].AddChan(clientChan)
+		}
+	}
 }
 
 //AddSubscription:  Add a new topic subscribe to specific client channel.
-func (p *PD) AddSubscription(clientChan chan interface{}, topics ...string) {
+func (p *PD) AddSubscription(clientChan chan string, topics ...string) {
+	p.RLock()
+	defer p.RUnlock()
+
 	p.updateTopicMapClient(clientChan, topics)
 }
 
 //RemoveSubscription: Remove sub topic list on specific chan
-func (p *PD) RemoveSubscription(clientChan chan interface{}, topics ...string) {
+func (p *PD) RemoveSubscription(clientChan chan string, topics ...string) {
+	p.RLock()
+	defer p.RUnlock()
 
 	for _, topic := range topics {
 		//Remove from topic->chan map
-		if chanList, ok := p.topicMapClients[topic]; ok {
+		if topicObj, ok := p.topicMapClients[topic]; ok {
 			//remove one client chan in chan List
-			var updateChanList []chan interface{}
-			for _, client := range chanList {
-				if client != clientChan {
-					updateChanList = append(updateChanList, client)
-				}
+			topicObj.RemoveChan(clientChan)
+
+			if topicObj.CountChanList() == 0 {
+				//Don't have any subscription
+				topicObj.Cleanup()
+				delete(p.topicMap, topic)
+				delete(p.topicMapClients, topic)
 			}
-			p.topicMapClients[topic] = updateChanList
 		}
 
-		//Remove from chan->topic map
-		if topicList, ok := p.clientMapTopics[clientChan]; ok {
-			var updateTopicList []string
-			for _, updateTopic := range topicList {
-				if updateTopic != topic {
-					updateTopicList = append(updateTopicList, topic)
-				}
-			}
-			p.clientMapTopics[clientChan] = updateTopicList
-		}
 	}
 }
 
 //Publish: Publish a content to a list of channels
 //         The content could be any type.
-func (p *PD) Publish(content interface{}, topics ...string) {
+func (p *PD) Publish(content string, topics ...string) {
+	p.RLock()
+	defer p.RUnlock()
+
 	for _, topic := range topics {
-		if chanList, ok := p.topicMapClients[topic]; ok {
-			//Someone has subscribed this topic
-			for _, channel := range chanList {
-				channel <- content
-			}
+		if topicObj, ok := p.topicMapClients[topic]; ok {
+			topicObj.SendDataToChans(content)
 		}
 	}
 }
 
-// Create a pubsub with expect init size, but the size could be extend.
-func NewPubsub(initChanCapacity int) *PD {
-	initClientMapTopics := make(chanMapStringList)
-	initTopicMapClients := make(stringMapChanList)
-
-	server := PD{clientMapTopics: initClientMapTopics, topicMapClients: initTopicMapClients}
-	server.capacity = initChanCapacity
+// NewPubsub :Create a pubsub with expect init size, but the size could be extend.
+func NewPubsub() *PD {
+	server := PD{
+		topicMap:        make(map[string]int),
+		topicMapClients: make(map[string]*Topic),
+	}
 	return &server
 }
