@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// Pubsub struct: Only content a userIndex and accessDB which content a chan map
+// PD :Pubsub struct Only content a userIndex and accessDB which content a chan map
 type PD struct {
 	sync.RWMutex
 
@@ -35,7 +35,7 @@ func (p *PD) ListTopics() []string {
 	defer p.RUnlock()
 
 	var retSlice []string
-	for k, _ := range p.topicMap {
+	for k := range p.topicMap {
 		retSlice = append(retSlice, k)
 	}
 	return retSlice
@@ -51,7 +51,7 @@ func (p *PD) updateTopicMapClient(clientChan chan string, topics []string) {
 	}
 }
 
-//AddSubscription:  Add a new topic subscribe to specific client channel.
+//AddSubscription  Add a new topic subscribe to specific client channel.
 func (p *PD) AddSubscription(clientChan chan string, topics ...string) {
 	p.RLock()
 	defer p.RUnlock()
@@ -59,7 +59,7 @@ func (p *PD) AddSubscription(clientChan chan string, topics ...string) {
 	p.updateTopicMapClient(clientChan, topics)
 }
 
-//RemoveSubscription: Remove sub topic list on specific chan
+//RemoveSubscription Remove sub topic list on specific chan
 func (p *PD) RemoveSubscription(clientChan chan string, topics ...string) {
 	p.RLock()
 	defer p.RUnlock()
@@ -81,7 +81,7 @@ func (p *PD) RemoveSubscription(clientChan chan string, topics ...string) {
 	}
 }
 
-//Publish: Publish a content to a list of channels
+//Publish  Publish a content to a list of channels
 //         The content could be any type.
 func (p *PD) Publish(content string, topics ...string) {
 	p.RLock()

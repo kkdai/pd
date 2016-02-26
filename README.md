@@ -1,7 +1,7 @@
 PD: Pubsub service base on disk queue on golang
 ==============
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kkdai/PD/master/LICENSE)  [![GoDoc](https://godoc.org/github.com/kkdai/PD?status.svg)](https://godoc.org/github.com/kkdai/PD)  [![Build Status](https://travis-ci.org/kkdai/PD.svg?branch=master)](https://travis-ci.org/kkdai/PD)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kkdai/pd/master/LICENSE)  [![GoDoc](https://godoc.org/github.com/kkdai/pd?status.svg)](https://godoc.org/github.com/kkdai/pd)  [![Build Status](https://travis-ci.org/kkdai/PD.svg?branch=master)](https://travis-ci.org/kkdai/pd)
 
 
 

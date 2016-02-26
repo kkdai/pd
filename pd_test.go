@@ -67,6 +67,33 @@ func TestRemoveSub(t *testing.T) {
 	}
 }
 
+func TestTopicList(t *testing.T) {
+	ser := NewPubsub()
+	t0 := ser.ListTopics()
+	if len(t0) != 0 {
+		t.Error("List error on empty")
+	}
+
+	c1 := ser.Subscribe("ch1", "ch2")
+	t1 := ser.ListTopics()
+
+	if len(t1) != 2 {
+		t.Error("List error on basic count")
+	}
+
+	ser.AddSubscription(c1, "ch1", "ch2", "ch3")
+	t2 := ser.ListTopics()
+	if len(t2) != 3 {
+		t.Error("List add error")
+	}
+
+	ser.RemoveSubscription(c1, "ch1")
+	t3 := ser.ListTopics()
+	if len(t3) != 2 {
+		t.Error("List remove error")
+	}
+}
+
 func BenchmarkAddSub(b *testing.B) {
 	big := NewPubsub()
 	b.ResetTimer()

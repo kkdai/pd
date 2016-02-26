@@ -6,17 +6,19 @@ import (
 	"log"
 	"time"
 
-	. "github.com/kkdai/diskqueue"
+	diskqueue "github.com/kkdai/diskqueue"
 )
 
+//Topic : Topic strucuture
 type Topic struct {
 	Name      string
-	dataQueue WorkQueue
+	dataQueue diskqueue.WorkQueue
 	exitChan  chan int
 
 	chanList []chan string
 }
 
+//NewTopic :Create new topic with a disk queue
 func NewTopic(tname string) *Topic {
 	t := new(Topic)
 	t.Name = tname
@@ -25,16 +27,18 @@ func NewTopic(tname string) *Topic {
 		log.Println("Cannot init disk queue:", err)
 		return nil
 	}
-	t.dataQueue = NewDiskqueue(t.Name, tmpDir)
+	t.dataQueue = diskqueue.NewDiskqueue(t.Name, tmpDir)
 	t.exitChan = make(chan int)
 	go t.inLoop()
 	return t
 }
 
+//SendDataToChans :Send data to the subscriptor
 func (t *Topic) SendDataToChans(data string) {
 	t.dataQueue.Put([]byte(data))
 }
 
+//AddChan :Add new subscriptor this is topic
 func (t *Topic) AddChan(newChan chan string) {
 	for _, v := range t.chanList {
 		if newChan == v {
@@ -45,15 +49,18 @@ func (t *Topic) AddChan(newChan chan string) {
 	t.chanList = append(t.chanList, newChan)
 }
 
+//Cleanup :Close and exist inLoop()
 func (t *Topic) Cleanup() {
 	//cleanup
 	t.exitChan <- 1
 }
 
+//RemoveChan :Remove a subscriptor from this topic
 func (t *Topic) RemoveChan(delChan chan string) {
 	t.chanList = removeChanFromSlice(t.chanList, delChan)
 }
 
+//CountChanList :Count the all subscriptors
 func (t *Topic) CountChanList() int {
 	return len(t.chanList)
 }
@@ -72,9 +79,8 @@ func removeChanFromSlice(slice []chan string, target chan string) []chan string 
 	}
 	if len(slice) == 1 && removeIndex == 0 {
 		return retSlice
-	} else {
-		retSlice = append(slice[:removeIndex], slice[removeIndex+1:]...)
 	}
+	retSlice = append(slice[:removeIndex], slice[removeIndex+1:]...)
 	return retSlice
 }
 
