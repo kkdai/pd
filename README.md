@@ -114,6 +114,7 @@ Inspired By
 
 - [Redis: Pubsub](http://redis.io/topics/pubsub)
 - [NSQ: Disqueue](https://github.com/nsqio/nsq/blob/master/nsqd/diskqueue.go)
+- [NSQ: realtime distributed message processing at scale](http://word.bitly.com/post/33232969144/nsq)
 
 Project52
 ---------------
