@@ -1,6 +1,10 @@
 package pd
 
-import "sync"
+import (
+	"io/ioutil"
+	"log"
+	"sync"
+)
 
 // Pubsub struct: Only content a userIndex and accessDB which content a chan map
 type PD struct {
@@ -92,6 +96,8 @@ func (p *PD) Publish(content string, topics ...string) {
 
 // NewPubsub :Create a pubsub with expect init size, but the size could be extend.
 func NewPubsub() *PD {
+	log.SetFlags(0)
+	log.SetOutput(ioutil.Discard)
 	server := PD{
 		topicMap:        make(map[string]int),
 		topicMapClients: make(map[string]*Topic),
