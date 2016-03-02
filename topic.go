@@ -34,8 +34,8 @@ func NewTopic(tname string) *Topic {
 }
 
 //SendDataToChans :Send data to the subscriptor
-func (t *Topic) SendDataToChans(data string) {
-	t.dataQueue.Put([]byte(data))
+func (t *Topic) SendDataToChans(data []byte) {
+	t.dataQueue.Put(data)
 }
 
 //AddChan :Add new subscriptor this is topic

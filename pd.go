@@ -79,7 +79,7 @@ func (p *PD) RemoveSubscription(clientChan chan []byte, topics ...string) {
 
 //Publish  Publish a content to a list of channels
 //         The content could be any type.
-func (p *PD) Publish(content string, topics ...string) {
+func (p *PD) Publish(content []byte, topics ...string) {
 	p.RLock()
 	defer p.RUnlock()
 
