@@ -15,7 +15,7 @@ type Topic struct {
 	dataQueue diskqueue.WorkQueue
 	exitChan  chan int
 
-	chanList []chan string
+	chanList []chan []byte
 }
 
 //NewTopic :Create new topic with a disk queue
@@ -39,7 +39,7 @@ func (t *Topic) SendDataToChans(data string) {
 }
 
 //AddChan :Add new subscriptor this is topic
-func (t *Topic) AddChan(newChan chan string) {
+func (t *Topic) AddChan(newChan chan []byte) {
 	for _, v := range t.chanList {
 		if newChan == v {
 			//chan exist return
@@ -56,7 +56,7 @@ func (t *Topic) Cleanup() {
 }
 
 //RemoveChan :Remove a subscriptor from this topic
-func (t *Topic) RemoveChan(delChan chan string) {
+func (t *Topic) RemoveChan(delChan chan []byte) {
 	t.chanList = removeChanFromSlice(t.chanList, delChan)
 }
 
@@ -65,8 +65,8 @@ func (t *Topic) CountChanList() int {
 	return len(t.chanList)
 }
 
-func removeChanFromSlice(slice []chan string, target chan string) []chan string {
-	var retSlice []chan string
+func removeChanFromSlice(slice []chan []byte, target chan []byte) []chan []byte {
+	var retSlice []chan []byte
 	removeIndex := -1
 	for k, v := range slice {
 		if v == target {
@@ -93,7 +93,7 @@ func (t *Topic) inLoop() {
 			log.Println("TOPIC:Got data ", string(dataRead))
 			//Got data start to put on all chan
 			for _, targetChan := range t.chanList {
-				targetChan <- string(dataRead)
+				targetChan <- dataRead
 			}
 		case <-t.exitChan:
 			//exist

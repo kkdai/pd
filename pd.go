@@ -1,10 +1,6 @@
 package pd
 
-import (
-	"io/ioutil"
-	"log"
-	"sync"
-)
+import "sync"
 
 // PD :Pubsub struct Only content a userIndex and accessDB which content a chan map
 type PD struct {
@@ -19,12 +15,12 @@ type PD struct {
 
 //Subscribe : Subscribe channels, the channels could be a list of channels name
 //     The channel name could be any, without define in server
-func (p *PD) Subscribe(topics ...string) chan string {
+func (p *PD) Subscribe(topics ...string) chan []byte {
 	p.RLock()
 	defer p.RUnlock()
 
 	//init new chan using capacity as channel buffer
-	workChan := make(chan string)
+	workChan := make(chan []byte)
 	p.updateTopicMapClient(workChan, topics)
 	return workChan
 }
@@ -41,7 +37,7 @@ func (p *PD) ListTopics() []string {
 	return retSlice
 }
 
-func (p *PD) updateTopicMapClient(clientChan chan string, topics []string) {
+func (p *PD) updateTopicMapClient(clientChan chan []byte, topics []string) {
 	for _, topic := range topics {
 		if _, exist := p.topicMap[topic]; !exist {
 			p.topicMap[topic] = 1
@@ -52,7 +48,7 @@ func (p *PD) updateTopicMapClient(clientChan chan string, topics []string) {
 }
 
 //AddSubscription  Add a new topic subscribe to specific client channel.
-func (p *PD) AddSubscription(clientChan chan string, topics ...string) {
+func (p *PD) AddSubscription(clientChan chan []byte, topics ...string) {
 	p.RLock()
 	defer p.RUnlock()
 
@@ -60,7 +56,7 @@ func (p *PD) AddSubscription(clientChan chan string, topics ...string) {
 }
 
 //RemoveSubscription Remove sub topic list on specific chan
-func (p *PD) RemoveSubscription(clientChan chan string, topics ...string) {
+func (p *PD) RemoveSubscription(clientChan chan []byte, topics ...string) {
 	p.RLock()
 	defer p.RUnlock()
 
@@ -96,8 +92,8 @@ func (p *PD) Publish(content string, topics ...string) {
 
 // NewPubsub :Create a pubsub with expect init size, but the size could be extend.
 func NewPubsub() *PD {
-	log.SetFlags(0)
-	log.SetOutput(ioutil.Discard)
+	//log.SetFlags(0)
+	//log.SetOutput(ioutil.Discard)
 	server := PD{
 		topicMap:        make(map[string]int),
 		topicMapClients: make(map[string]*Topic),

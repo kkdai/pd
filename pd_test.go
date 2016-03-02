@@ -25,12 +25,12 @@ func TestTwoSubscribetor(t *testing.T) {
 	ser.Publish("test1", "ch2")
 
 	val, ok := <-c1
-	if !ok || val != "test2" {
+	if !ok || string(val) != "test2" {
 		t.Errorf("Error found \n")
 	}
 
 	val, ok = <-c2
-	if !ok || val != "test1" {
+	if !ok || string(val) != "test1" {
 		t.Errorf("Error found \n")
 	}
 }
@@ -104,7 +104,7 @@ func BenchmarkAddSub(b *testing.B) {
 
 func BenchmarkRemoveSub(b *testing.B) {
 	big := NewPubsub()
-	var subChans []chan string
+	var subChans []chan []byte
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		c1 := big.Subscribe("1234567890")
