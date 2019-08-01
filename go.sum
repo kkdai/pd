@@ -1,0 +1,6 @@
+github.com/kkdai/diskqueue v0.0.0-20160219081431-4deab1bce135 h1:9hlWvvXXNGyySj0JJ4s+W3mzsOS6zd+Jxd2jI2KB5BU=
+github.com/kkdai/diskqueue v0.0.0-20160219081431-4deab1bce135/go.mod h1:SkvE8xfaFwojNIoHR8SXo/1ce951qV5g3cbqCKmdzCQ=
+github.com/kkdai/diskqueue v1.0.0 h1:QRf3ZpTcMKnLd0N5yBpg8++4MKSd+ElcjQ+QD2wl1VQ=
+github.com/kkdai/diskqueue v1.0.0/go.mod h1:BHXcT1BKhX9+BpcVcQFpZIrXv0y9C3kvBxw4tXOtLDY=
+github.com/kkdai/pubsub v1.0.0 h1:XXLIEfxj1WivjO4560QVPYrlGNuKE/pvpIFYgqM3+X0=
+github.com/kkdai/pubsub v1.0.0/go.mod h1:TW29Nm5ndKLoXLON8hQWStr9T2bh4sjJSsFSB/AXlPY=
