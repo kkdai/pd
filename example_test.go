@@ -26,6 +26,8 @@ func ExamplePubsub() {
 
 	fmt.Println(<-c1)
 	//Got "test3"
+	fmt.Println(<-c2)
+	//Got "test3"
 
 	// Remove subscription "topic2" in c1
 	ser.RemoveSubscription(c1, "topic2")
@@ -35,10 +37,11 @@ func ExamplePubsub() {
 
 	select {
 	case val := <-c1:
-		fmt.Printf("Should not get %v notify on remove topic\n", val)
+		fmt.Errorf("Should not get %v notify on remove topic", val)
 		break
 	case <-time.After(time.Second):
 		//Will go here, because we remove subscription topic2 in c1.
+		fmt.Println("Not receive any msg from topic2, timeout.")
 		break
 	}
 }
