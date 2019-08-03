@@ -45,14 +45,14 @@ Usage
 
 ```go
 package main
-    
+
 import (
 	"fmt"
 	"time"
-    
+
 	. "github.com/kkdai/pubsub"
 )
-    
+
 func main() {
 	ser := NewPubsub(1)
 	c1 := ser.Subscribe("topic1")
@@ -64,31 +64,33 @@ func main() {
 	fmt.Println(<-c2)
 	//Got "test2"
 
-
-    // Add subscription "topic2" for c1.          
+	// Add subscription "topic2" for c1.
 	ser.AddSubscription(c1, "topic2")
 
-    // Publish new content in topic2
+	// Publish new content in topic2
 	ser.Publish("test3", "topic2")
 
 	fmt.Println(<-c1)
 	//Got "test3"
-	
-    // Remove subscription "topic2" in c1
+	fmt.Println(<-c2)
+	//Got "test3"
+
+	// Remove subscription "topic2" in c1
 	ser.RemoveSubscription(c1, "topic2")
-	
-    // Publish new content in topic2
+
+	// Publish new content in topic2
 	ser.Publish("test4", "topic2")
-    
+
 	select {
 	case val := <-c1:
-		fmt.Printf("Should not get %v notify on remove topic\n", val)
+		fmt.Errorf("Should not get %v notify on remove topic", val)
 		break
 	case <-time.After(time.Second):
-	    //Will go here, because we remove subscription topic2 in c1.         
+		//Will go here, because we remove subscription topic2 in c1.
+		fmt.Println("Not receive any msg from topic2, timeout.")
 		break
 	}
-}
+} 
 ```
 
 Benchmark
